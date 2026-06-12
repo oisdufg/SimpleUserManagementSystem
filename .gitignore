@@ -1,0 +1,72 @@
+# Build
+
+bin/
+obj/
+
+# Rider
+
+.idea/
+
+# ReSharper
+
+_ReSharper*/
+*.DotSettings.user
+
+# Visual Studio
+
+.vs/
+*.user
+*.suo
+
+# Logs
+
+*.log
+
+# NuGet
+
+*.nupkg
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Publish
+
+publish/
+
+# Test Results
+
+TestResults/
+
+# EF Core Migrations Snapshot Backup
+
+*.bak
+
+# Secrets
+
+appsettings.Development.json
+appsettings.Local.json
+
+# Environment
+
+.env
+.env.*
+
+# Generated files
+
+*.generated.cs
+
+# Rider cache
+
+.idea_modules/
+
+# Coverage
+
+coverage/
+coverage-report/
+
+# Temporary files
+
+tmp/
+temp/

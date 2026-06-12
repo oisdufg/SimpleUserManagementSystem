@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>UserSystemService</RootNamespace>
+        <Protobuf_ProtoRoot>../Common/Protos</Protobuf_ProtoRoot>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FuzzySharp" Version="2.0.2" />
+      <PackageReference Include="Google.Protobuf" Version="3.35.1" />
+      <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
+      <PackageReference Include="Grpc.Core" Version="2.46.6" />
+      <PackageReference Include="Grpc.Tools" Version="2.81.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Label="Services">
+        <Protobuf Include="../Common/Protos/user.proto" Link="Protos/user.proto" GrpcServices="Services" />
+        <Protobuf Include="../Common/Protos/user_task.proto" Link="Protos/user_task.proto" GrpcServices="Services" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Exceptions\Exceptions.csproj" />
+    </ItemGroup>
+
+</Project>

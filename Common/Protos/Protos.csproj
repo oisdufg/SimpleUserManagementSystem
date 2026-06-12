@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>14</LangVersion>
+        <AssemblyName>SimpleUserManagementSystem.Common.Protos</AssemblyName>
+        <RootNamespace>SimpleUserManagementSystem.Common.Protos</RootNamespace>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.35.1" />
+    </ItemGroup>
+
+</Project>

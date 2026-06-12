@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "SimpleUserManagementSystem.Common.Protos";
+
+package user_task;
+
+service UserTask {
+  rpc GetByUserId(google.protobuf.Int32Value) returns (stream UserTaskData);
+  rpc GetAll(google.protobuf.Empty) returns (stream UserTaskData);
+  rpc GetById(google.protobuf.Int32Value) returns (UserTaskData);
+  rpc GetByName(google.protobuf.StringValue) returns (stream UserTaskData);
+  rpc GetDeleted(google.protobuf.Empty) returns (stream UserTaskData);
+  rpc GetDeletedByUserId(google.protobuf.Int32Value) returns (stream UserTaskData);
+  rpc Create(CreateUserTaskData) returns (google.protobuf.Int32Value);
+  rpc Update(UpdateUserTaskData) returns (google.protobuf.Empty);
+  rpc Delete(google.protobuf.Int32Value) returns (google.protobuf.Empty);
+  rpc ChangeStatus(ChangeStatusData) returns (google.protobuf.Empty);
+  rpc Restore(google.protobuf.Int32Value) returns (google.protobuf.Empty);
+}
+
+message UserTaskData {
+  int32 id = 1;
+  google.protobuf.Int32Value user_id = 2;
+  string task_name = 3;
+  google.protobuf.StringValue task_description = 4;
+  TaskStatus task_status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp modified_at = 7;
+  bool is_deleted = 8;
+  bytes row_version = 9;
+}
+
+message CreateUserTaskData {
+  int32 id = 1;
+  google.protobuf.Int32Value user_id = 2;
+  string task_name = 3;
+  google.protobuf.StringValue task_description = 4;
+}
+
+message UpdateUserTaskData {
+  int32 id = 1;
+  google.protobuf.Int32Value user_id = 2;
+  google.protobuf.StringValue task_name = 3;
+  google.protobuf.StringValue task_description = 4; 
+}
+
+message ChangeStatusData {
+  int32 id = 1;
+  TaskStatus task_status = 2;
+}
+
+enum TaskStatus {
+  EMPTY = 0;
+  TO_DO = 1;
+  IN_PROGRESS = 2;
+  ON_HOLD = 3;
+  IN_REVIEW = 4;
+  COMPLETED = 5;
+  CANCELLED = 6;
+}
+

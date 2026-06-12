@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "user_task.proto";
+
+option csharp_namespace = "SimpleUserManagementSystem.Common.Protos";
+
+package user;
+
+service User {
+  rpc GetAll(google.protobuf.Empty) returns (stream UserData);
+  rpc GetAllUserNames(google.protobuf.Empty) returns (stream UserNameData);
+  rpc GetById(google.protobuf.Int32Value) returns (UserData);
+  rpc Create(UserData) returns (google.protobuf.Empty);
+  rpc Update(UserData) returns (google.protobuf.Empty);
+  rpc Delete(google.protobuf.Int32Value) returns (google.protobuf.Empty);
+}
+
+message UserData {
+   int32 id = 1;
+   string first_name = 2;
+   string last_name = 3;
+   google.protobuf.StringValue middle_name = 4;
+   string email = 5;
+   google.protobuf.Timestamp birthday = 6;
+}
+
+message UserNameData {
+  int32 id = 1;
+  string full_name = 2;
+}
+
+message UserDetailsData {
+  int32 id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  google.protobuf.StringValue middle_name = 4;
+  string email = 5;
+  google.protobuf.Timestamp birthday = 6;
+  repeated user_task.UserTaskData tasks = 7;
+}
