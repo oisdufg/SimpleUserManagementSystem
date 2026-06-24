@@ -2,6 +2,7 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using SimpleUserManagementSystem.Common.Protos;
+using UserSystemGateway.MappingProfiles;
 
 namespace UserSystemGateway.Controllers;
 
@@ -26,6 +27,16 @@ public class UserController : ControllerBase
         }
     }
 
+    [HttpGet("/usernames")]
+    public async IAsyncEnumerable<UserNameData> GetAllUserNamesAsync(CancellationToken cancellationToken)
+    {
+        using AsyncServerStreamingCall<UserNameData> call = _client.GetAllUserNames(new Empty());
+        await foreach (UserNameData response in call.ResponseStream.ReadAllAsync(cancellationToken))
+        {
+            yield return response;
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
@@ -33,9 +44,24 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    /*[HttpPost]
+    [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody] Models.User request, CancellationToken cancellationToken)
     {
-        await _client.CreateAsync(request, cancellationToken: cancellationToken)
-    }*/
+        await _client.CreateAsync(request.Map(), cancellationToken: cancellationToken);
+        return Ok();
+    }
+
+    [HttpPatch]
+    public async Task<IActionResult> UpdateAsync([FromBody] Models.User request, CancellationToken cancellationToken)
+    {
+        await _client.UpdateAsync(request.Map(), cancellationToken: cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        await _client.DeleteAsync(new Int32Value { Value = id }, cancellationToken: cancellationToken);
+        return Ok();
+    }
 }

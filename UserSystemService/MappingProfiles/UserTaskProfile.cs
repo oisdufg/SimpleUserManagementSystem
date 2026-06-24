@@ -1,14 +1,12 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using SimpleUserManagementSystem.Common.Protos;
-using TaskStatus = UserSystemService.Enums.TaskStatus;
-using UserTask = UserSystemService.Models.UserTask;
 
 namespace UserSystemService.MappingProfiles;
 
 public static class UserTaskProfile
 {
-    public static UserTaskData MapUserTaskGrpc(this Models.UserTask model)
+    public static UserTaskData Map(this Models.UserTask model)
     {
         return new UserTaskData
         {
@@ -24,7 +22,7 @@ public static class UserTaskProfile
         };
     }
 
-    public static Models.UserTask MapUserTaskEntity(this CreateUserTaskData model)
+    public static Models.UserTask Map(this CreateUserTaskData model)
     {
         return new Models.UserTask
         {
@@ -33,9 +31,9 @@ public static class UserTaskProfile
             TaskDescription = model.TaskDescription
         };
     }
-    public static Models.UpdateUserTask MapUpdateUserTaskGrpc(this UpdateUserTaskData model)
+    public static Models.UpdateUserTaskRequest Map(this UpdateUserTaskData model)
     {
-        return new Models.UpdateUserTask
+        return new Models.UpdateUserTaskRequest
         {
             ID = model.Id,
             UserID = model.UserId,
@@ -43,5 +41,4 @@ public static class UserTaskProfile
             TaskDescription = model.TaskDescription,
         };
     }  
-    
 }

@@ -21,25 +21,25 @@ public class UserService : User.UserBase
     {
         IEnumerable<Models.User> data = await _repository.GetAllAsync(context.CancellationToken);
         
-        IEnumerable<UserData> reply = data.Select(e => e.MapUserGrpc());
+        IEnumerable<UserData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
     public override async Task<UserData> GetById(Int32Value request, ServerCallContext context)
     {   
         Models.User data = await _repository.GetByIdAsync(request.Value, context.CancellationToken);
-        return data.MapUserGrpc();
+        return data.Map();
     }
 
     public override async Task<Empty> Create(UserData request, ServerCallContext context)
     {
-        await _repository.CreateAsync(request.MapUserEntity(), context.CancellationToken);
+        await _repository.CreateAsync(request.Map(), context.CancellationToken);
         return new Empty();
     }
 
     public override async Task<Empty> Update(UserData request, ServerCallContext context)
     {
-        await _repository.UpdateAsync(request.MapUserEntity(), context.CancellationToken);
+        await _repository.UpdateAsync(request.Map(), context.CancellationToken);
         return new Empty();
     }
 

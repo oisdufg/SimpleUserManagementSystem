@@ -5,7 +5,7 @@ namespace UserSystemService.MappingProfiles;
 
 public static class UserProfile
 {
-    public static Models.User MapUserEntity(this UserData model)
+    public static Models.User Map(this UserData model)
     {
         return new Models.User
         {
@@ -18,7 +18,7 @@ public static class UserProfile
         };
     }
     
-    public static UserData MapUserGrpc(this Models.User model)
+    public static UserData Map(this Models.User model)
     {
         return new UserData
         {

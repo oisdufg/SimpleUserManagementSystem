@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using UserSystemService.Context;
 using UserSystemService.Repositories;
 using UserSystemService.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using UserSystemService.Interfaces;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -19,11 +21,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
 
 builder.Services.AddGrpc();
 
 WebApplication app = builder.Build();
 
 app.MapGrpcService<UserService>();
+app.MapGrpcService<UserTaskService>();
 
 app.Run();

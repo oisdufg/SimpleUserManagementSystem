@@ -22,7 +22,7 @@ public class UserTaskService : UserTask.UserTaskBase
     {
         IEnumerable<Models.UserTask> data = await _repository.GetByUserIdAsync(request.Value, context.CancellationToken);
 
-        IEnumerable<UserTaskData> reply = data.Select(e => e.MapUserTaskGrpc());
+        IEnumerable<UserTaskData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
@@ -30,21 +30,21 @@ public class UserTaskService : UserTask.UserTaskBase
     {
         IEnumerable<Models.UserTask> data = await _repository.GetAllAsync(context.CancellationToken);
 
-        IEnumerable<UserTaskData> reply = data.Select(e => e.MapUserTaskGrpc());
+        IEnumerable<UserTaskData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
     public override async Task<UserTaskData> GetById(Int32Value request, ServerCallContext context)
     {
         Models.UserTask data = await _repository.GetByIdAsync(request.Value, context.CancellationToken);
-        return data.MapUserTaskGrpc();
+        return data.Map();
     }
 
     public override async Task GetByName(StringValue request, IServerStreamWriter<UserTaskData> responseStream, ServerCallContext context)
     {
         IEnumerable<Models.UserTask> data = await _repository.GetByNameAsync(request.Value, context.CancellationToken);
 
-        IEnumerable<UserTaskData> reply = data.Select(e => e.MapUserTaskGrpc());
+        IEnumerable<UserTaskData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
@@ -52,7 +52,7 @@ public class UserTaskService : UserTask.UserTaskBase
     {
         IEnumerable<Models.UserTask> data = await _repository.GetDeletedAsync(context.CancellationToken);
 
-        IEnumerable<UserTaskData> reply = data.Select(e => e.MapUserTaskGrpc());
+        IEnumerable<UserTaskData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
@@ -60,16 +60,15 @@ public class UserTaskService : UserTask.UserTaskBase
     {
         IEnumerable<Models.UserTask> data = await _repository.GetDeletedByUserIdAsync(request.Value, context.CancellationToken);
 
-        IEnumerable<UserTaskData> reply = data.Select(e => e.MapUserTaskGrpc());
+        IEnumerable<UserTaskData> reply = data.Select(e => e.Map());
         await responseStream.WriteAllAsync(reply);
     }
 
-    public override async Task<Int32Value> Create(CreateUserTaskData request, ServerCallContext context)
+    public override async Task<Empty> Create(CreateUserTaskData request, ServerCallContext context)
     {
-        return new Int32Value
-        {
-            Value = await _repository.CreateAsync(request.MapUserTaskEntity(), context.CancellationToken)
-        };
+        await _repository.CreateAsync(request.Map(), context.CancellationToken);
+
+        return new Empty();
     }
 
     public override async Task<Empty> Update(UpdateUserTaskData request, ServerCallContext context)
@@ -80,7 +79,7 @@ public class UserTaskService : UserTask.UserTaskBase
             throw new InvalidTaskStateException($"Task with id {currentTask.ID} is deleted and cannot be updated");
         }
         
-        await _repository.UpdateAsync(request.MapUpdateUserTaskGrpc(), context.CancellationToken);
+        await _repository.UpdateAsync(request.Map(), context.CancellationToken);
 
         return new Empty();
     }

@@ -6,7 +6,7 @@ namespace UserSystemService.Interfaces;
 public interface IUserRepository
 {
     Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken);
-    Task<IEnumerable<UserShortInfo>> GetAllUserNamesAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<UserShortInfoRequest>> GetAllUserNamesAsync(CancellationToken cancellationToken);
     Task<User> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task CreateAsync(User user, CancellationToken cancellationToken);
     Task UpdateAsync(User user, CancellationToken cancellationToken);

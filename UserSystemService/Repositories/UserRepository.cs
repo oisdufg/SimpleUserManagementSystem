@@ -8,9 +8,9 @@ namespace UserSystemService.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     
-    public UserRepository(ApplicationDbContext context)
+    public UserRepository(IApplicationDbContext context)
     {
         _context = context;
     }
@@ -23,12 +23,12 @@ public class UserRepository : IUserRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<UserShortInfo>> GetAllUserNamesAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<UserShortInfoRequest>> GetAllUserNamesAsync(CancellationToken cancellationToken)
     {
         return await _context.Users
             .AsNoTracking()
             .OrderBy(e => e.LastName)
-            .Select(e => new UserShortInfo
+            .Select(e => new UserShortInfoRequest
             {
                 ID = e.ID,
                 FullName = $"{e.FirstName} {e.LastName} {e.MiddleName}",
@@ -55,24 +55,24 @@ public class UserRepository : IUserRepository
     {
         await CheckIfUserExists(user.ID, cancellationToken);
         
-        await _context.Users
-            .Where(e => e.ID == user.ID)
-            .ExecuteUpdateAsync(e => e
-                .SetProperty(p => p.FirstName, user.FirstName)
-                .SetProperty(p => p.LastName, user.LastName)
-                .SetProperty(p => p.MiddleName, user.MiddleName)
-                .SetProperty(p => p.Email, user.Email)
-                .SetProperty(p => p.Birthday, user.Birthday)
-                , cancellationToken);
+        User entity = await _context.Users.FirstAsync(e => e.ID == user.ID, cancellationToken);
+        
+        entity.FirstName = user.FirstName;
+        entity.MiddleName = user.MiddleName;
+        entity.LastName = user.LastName;
+        entity.Email = user.Email;
+        entity.Birthday = user.Birthday; 
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken)
     {
         await CheckIfUserExists(id, cancellationToken);
         
-        await _context.Users
-            .Where(e => e.ID == id)
-            .ExecuteDeleteAsync(cancellationToken);
+        User user = await _context.Users.FindAsync(id, cancellationToken);
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync(cancellationToken);
     }
     
     private async Task CheckIfUserExists(int id, CancellationToken cancellationToken)
@@ -80,7 +80,7 @@ public class UserRepository : IUserRepository
         bool data = await _context.Users.AsNoTracking().AnyAsync(e => e.ID == id, cancellationToken);
         if (data is false)
         {
-            throw new KeyNotFoundException($"User with {id} not found");
+            throw new KeyNotFoundException($"User with id {id} not found");
         }
     }
 }

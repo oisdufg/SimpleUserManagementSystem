@@ -34,8 +34,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(e => e.Birthday)
             .IsRequired();
 
-        builder.HasMany<UserTask>()
+        builder.HasMany(e => e.Tasks)
             .WithOne(e => e.User)
-            .HasForeignKey(e => e.UserID);
+            .HasForeignKey(e => e.UserID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -7,7 +7,7 @@ namespace UserSystemService.Configurations;
 public class UserTaskConfiguration : IEntityTypeConfiguration<UserTask>
 {
     private const int TaskNameLength = 255;
-    private const int TaskDescriptionLength = 255;
+    private const int TaskDescriptionLength = 350;
     
     public void Configure(EntityTypeBuilder<UserTask> builder)
     {

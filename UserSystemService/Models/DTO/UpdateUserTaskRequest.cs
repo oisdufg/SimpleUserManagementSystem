@@ -1,6 +1,6 @@
 ﻿namespace UserSystemService.Models;
 
-public class UpdateUserTask
+public class UpdateUserTaskRequest
 {
     public int ID { get; set; }
     public int? UserID { get; set; }

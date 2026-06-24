@@ -15,7 +15,7 @@ service UserTask {
   rpc GetByName(google.protobuf.StringValue) returns (stream UserTaskData);
   rpc GetDeleted(google.protobuf.Empty) returns (stream UserTaskData);
   rpc GetDeletedByUserId(google.protobuf.Int32Value) returns (stream UserTaskData);
-  rpc Create(CreateUserTaskData) returns (google.protobuf.Int32Value);
+  rpc Create(CreateUserTaskData) returns (google.protobuf.Empty);
   rpc Update(UpdateUserTaskData) returns (google.protobuf.Empty);
   rpc Delete(google.protobuf.Int32Value) returns (google.protobuf.Empty);
   rpc ChangeStatus(ChangeStatusData) returns (google.protobuf.Empty);

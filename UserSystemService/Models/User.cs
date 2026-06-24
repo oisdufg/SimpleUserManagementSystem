@@ -10,4 +10,20 @@ public class User
     public DateTime Birthday { get; set; }
 
     public ICollection<UserTask> Tasks { get; set; } = [];
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ID, Email, FirstName, LastName, MiddleName, Birthday);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is User toCompare
+               && ID == toCompare.ID
+               && FirstName == toCompare.FirstName
+               && LastName == toCompare.LastName
+               && MiddleName == toCompare.MiddleName
+               && Email == toCompare.Email
+               && Birthday == toCompare.Birthday;
+    }
 }

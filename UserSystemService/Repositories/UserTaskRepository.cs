@@ -1,6 +1,5 @@
 ﻿using FuzzySharp;
 using Microsoft.EntityFrameworkCore;
-using SimpleUserManagementSystem.Common.Protos;
 using UserSystemService.Context;
 using UserSystemService.Interfaces;
 using UserSystemService.Models;
@@ -11,9 +10,9 @@ namespace UserSystemService.Repositories;
 
 public class UserTaskRepository : IUserTaskRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
-    public UserTaskRepository(ApplicationDbContext context)
+    public UserTaskRepository(IApplicationDbContext context)
     {
         _context = context;
     }
@@ -78,7 +77,7 @@ public class UserTaskRepository : IUserTaskRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<int> CreateAsync(UserTask userTask, CancellationToken cancellationToken)
+    public async Task CreateAsync(UserTask userTask, CancellationToken cancellationToken)
     {
         userTask.CreatedAt = DateTime.UtcNow;
         userTask.ModifiedAt = DateTime.UtcNow;
@@ -87,22 +86,21 @@ public class UserTaskRepository : IUserTaskRepository
         
         await _context.UserTasks.AddAsync(userTask, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        
-        return userTask.ID;
     }
 
-    public async Task UpdateAsync(UpdateUserTask userTask, CancellationToken cancellationToken)
+    public async Task UpdateAsync(UpdateUserTaskRequest userTaskRequest, CancellationToken cancellationToken)
     {
-        UserTask local = await GetByIdAsync(userTask.ID, cancellationToken);
-        
-        _context.Entry(local)
-            .Property(x => x.RowVersion)
-            .OriginalValue = userTask.RowVersion;
+        UserTask? entity = await _context.UserTasks
+            .FirstOrDefaultAsync(x => x.ID == userTaskRequest.ID, cancellationToken);
 
-        local.UserID = userTask.UserID ?? local.UserID;
-        local.TaskName = userTask.TaskName ?? local.TaskName;
-        local.TaskDescription = userTask.TaskDescription ?? local.TaskDescription;
-        local.ModifiedAt = DateTime.UtcNow;
+        if (entity == null)
+            throw new KeyNotFoundException($"Task with id {userTaskRequest.ID} not found");
+        
+        entity.RowVersion = userTaskRequest.RowVersion;
+        entity.UserID = userTaskRequest.UserID ?? entity.UserID;
+        entity.TaskName = userTaskRequest.TaskName ?? entity.TaskName;
+        entity.TaskDescription = userTaskRequest.TaskDescription ?? entity.TaskDescription;
+        entity.ModifiedAt = DateTime.UtcNow;
 
         try
         {
@@ -110,46 +108,44 @@ public class UserTaskRepository : IUserTaskRepository
         }
         catch (DbUpdateConcurrencyException)
         {
-            throw new InvalidOperationException($"Task with id {userTask.ID} was modified by another user");
+            throw new InvalidOperationException(
+                $"Task with id {userTaskRequest.ID} was modified by another user");
         }
-        
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken)
     {
         await CheckIfTaskExistsAsync(id, CancellationToken.None);
         
-        await _context.UserTasks
-            .Where(e => e.ID == id)
-            .ExecuteUpdateAsync(e => e
-                .SetProperty(p => p.IsDeleted, true)
-                .SetProperty(p => p.ModifiedAt, DateTime.UtcNow),
-                cancellationToken);
+        UserTask userTask = await _context.UserTasks.FindAsync(id, cancellationToken);
+
+        userTask.IsDeleted = true;
+        userTask.ModifiedAt = DateTime.UtcNow;
+        
+        _context.UserTasks.Remove(userTask);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task ChangeStatusAsync(int id, TaskStatus status, CancellationToken cancellationToken)
     {
         await CheckIfTaskExistsAsync(id, CancellationToken.None);
         
-        await _context.UserTasks
-            .Where(e => e.ID == id)
-            .ExecuteUpdateAsync(e => e
-                    .SetProperty(p => p.TaskStatus, status)
-                    .SetProperty(p => p.ModifiedAt, DateTime.UtcNow),
-                cancellationToken);
+        UserTask entity = await _context.UserTasks.FirstAsync(e => e.ID == id, cancellationToken);
+        
+        entity.TaskStatus = status;
+        entity.ModifiedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task RestoreAsync(int id, CancellationToken cancellationToken)
     {
         await CheckIfTaskExistsAsync(id, CancellationToken.None);
         
-        await _context.UserTasks
-            .Where(e => e.ID == id)
-            .ExecuteUpdateAsync(e => e
-                    .SetProperty(p => p.IsDeleted, false)
-                    .SetProperty(p => p.ModifiedAt, DateTime.UtcNow),
-                cancellationToken);
+        UserTask entity = await _context.UserTasks.FirstAsync(e => e.ID == id, cancellationToken);
         
+        entity.IsDeleted = false;
+        entity.ModifiedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task CheckIfTaskExistsAsync(int id, CancellationToken cancellationToken)
@@ -157,7 +153,7 @@ public class UserTaskRepository : IUserTaskRepository
         bool data = await _context.UserTasks.AsNoTracking().AnyAsync(e => e.ID == id, cancellationToken);
         if (data is false)
         {
-            throw new KeyNotFoundException($"Task with {id} not found");
+            throw new KeyNotFoundException($"Task with id {id} not found");
         }
     }
 }

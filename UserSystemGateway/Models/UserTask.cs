@@ -1,4 +1,6 @@
-﻿namespace UserSystemGateway.Models;
+﻿using TaskStatus = UserSystemGateway.Enums.TaskStatus;
+
+namespace UserSystemGateway.Models;
 
 public class UserTask
 {
