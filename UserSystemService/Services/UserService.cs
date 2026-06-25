@@ -28,6 +28,11 @@ public class UserService : User.UserBase
     public override async Task<UserData> GetById(Int32Value request, ServerCallContext context)
     {   
         Models.User data = await _repository.GetByIdAsync(request.Value, context.CancellationToken);
+        if (data is null)
+        {
+            throw new KeyNotFoundException($"User with id {request.Value} not found");
+        }
+        
         return data.Map();
     }
 

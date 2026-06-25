@@ -63,4 +63,133 @@ internal class UserServiceTest : BaseUnitTest
             await writer.Received().WriteAsync(record.Map());
         }
     }
+
+    [Test]
+    public async Task GetById_should_get_user_by_id()
+    {
+        //Arrange
+        User userOne = new()
+        {
+            ID = 1,
+            FirstName = "Foo1",
+            MiddleName = "Bar1",
+            LastName = "Baz1",
+            Birthday = new DateTime(1990, 1, 1),
+            Email = "foo1@mail.com",
+            Tasks  = new List<UserTask>()
+        };
+        
+        InitializeMocks(users: new[] { userOne });
+        _service = new UserService(UserRepository);
+        
+        ServerCallContext context = GrpcMock.GetCallContext(nameof(_service.GetById));
+        
+        //Act
+        UserData actual = await _service.GetById(new Int32Value { Value = 1 }, context);
+        
+        //Assert
+        IEnumerable<ICall> calls = UserRepository.ReceivedCalls();
+        ICall call = calls.FirstOrDefault(e => e.GetMethodInfo().Name == nameof(UserRepository.GetByIdAsync));
+        Assert.That(call, Is.Not.Null);
+        
+        Assert.That(actual, Is.Not.Null);
+        Assert.That(actual, Is.EqualTo(userOne.Map()));
+    }
+
+    [Test]
+    public async Task GetById_should_return_exception_when_user_not_found()
+    {
+        //Arrange
+        InitializeMocks();
+        _service = new UserService(UserRepository);
+        
+        ServerCallContext context = GrpcMock.GetCallContext(nameof(_service.GetById));
+        
+        //Act
+        KeyNotFoundException exception = Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            _service.GetById(new Int32Value { Value = 1 }, context));
+        
+        //Assert
+        IEnumerable<ICall> calls = UserRepository.ReceivedCalls();
+        ICall call = calls.FirstOrDefault(e => e.GetMethodInfo().Name == nameof(UserRepository.GetByIdAsync));
+        Assert.That(call, Is.Not.Null);
+        
+        Assert.That(exception, Is.Not.Null);
+        Assert.That(exception.Message, Is.EqualTo("User with id 1 not found"));
+    }
+
+    [Test]
+    public async Task Create_should_create_user()
+    {
+        //Arrange
+        User userOne = new()
+        {
+            ID = 1,
+            FirstName = "Foo1",
+            MiddleName = "Bar1",
+            LastName = "Baz1",
+            Birthday = new DateTime(1990, 1, 1),
+            Email = "foo1@mail.com",
+            Tasks  = new List<UserTask>()
+        };
+        
+        InitializeMocks();
+        _service = new UserService(UserRepository);
+        
+        ServerCallContext context = GrpcMock.GetCallContext(nameof(_service.Create));
+        
+        //Act
+        await _service.Create(userOne.Map(), context);
+        
+        //Assert
+        IEnumerable<ICall> calls = UserRepository.ReceivedCalls();
+        ICall call = calls.FirstOrDefault(e => e.GetMethodInfo().Name == nameof(UserRepository.CreateAsync));
+        Assert.That(call, Is.Not.Null);
+    }
+    
+    [Test]
+    public async Task Update_should_update_user()
+    {
+        User userOne = new()
+        {
+            ID = 1,
+            FirstName = "Foo1",
+            MiddleName = "Bar1",
+            LastName = "Baz1",
+            Birthday = new DateTime(1990, 1, 1),
+            Email = "foo1@mail.com",
+            Tasks  = new List<UserTask>()
+        };
+        
+        InitializeMocks();
+        _service = new UserService(UserRepository);
+        
+        ServerCallContext context = GrpcMock.GetCallContext(nameof(_service.Update));
+        
+        //Act
+        await _service.Update(userOne.Map(), context);
+        
+        //Assert
+        IEnumerable<ICall> calls = UserRepository.ReceivedCalls();
+        ICall call = calls.FirstOrDefault(e => e.GetMethodInfo().Name == nameof(UserRepository.UpdateAsync));
+        Assert.That(call, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Delete_should_delete_user()
+    {
+        //Arrange
+        InitializeMocks();
+        _service = new UserService(UserRepository);
+        
+        ServerCallContext context = GrpcMock.GetCallContext(nameof(_service.Delete));
+        
+        //Act
+        await _service.Delete(new Int32Value { Value = 1 }, context);
+        
+        //Assert
+        IEnumerable<ICall> calls = UserRepository.ReceivedCalls();
+        ICall call = calls.FirstOrDefault(e => e.GetMethodInfo().Name == nameof(UserRepository.DeleteAsync));
+        Assert.That(call, Is.Not.Null);
+    }
 }

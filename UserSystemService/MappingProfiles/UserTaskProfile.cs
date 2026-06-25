@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using SimpleUserManagementSystem.Common.Protos;
+using TaskStatus = UserSystemService.Enums.TaskStatus;
 
 namespace UserSystemService.MappingProfiles;
 
@@ -19,6 +20,22 @@ public static class UserTaskProfile
             ModifiedAt = Timestamp.FromDateTime(DateTime.SpecifyKind(model.ModifiedAt, DateTimeKind.Utc)),
             IsDeleted = model.IsDeleted,
             RowVersion = ByteString.CopyFrom(model.RowVersion)
+        };
+    }
+
+    public static Models.UserTask Map(this UserTaskData model)
+    {
+        return new Models.UserTask
+        {
+            ID = model.Id,
+            UserID = model.UserId,
+            TaskName = model.TaskName,
+            TaskDescription = model.TaskDescription,
+            TaskStatus = (TaskStatus)model.TaskStatus,
+            CreatedAt = model.CreatedAt.ToDateTime(),
+            ModifiedAt = model.ModifiedAt.ToDateTime(),
+            IsDeleted = model.IsDeleted,
+            RowVersion = model.RowVersion.ToByteArray()
         };
     }
 
